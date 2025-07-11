@@ -1,3 +1,5 @@
+import torch
+
 def random_patch_mask(x, patch_size=1, mask_ratio=0.2):
     """
     Create a soft random patch mask for self-supervised training.

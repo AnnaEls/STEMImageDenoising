@@ -1,6 +1,6 @@
 import os
 import cv2
-import tiffile
+import tifffile
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn

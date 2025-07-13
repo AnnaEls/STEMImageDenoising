@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from Training.mask import random_patch_mask
+from STEMImageDenoising.Training.mask import random_patch_mask
 from Utilities.utils import save_model
 
 def train_model(model, input, path, learning_rate=1e-3,  num_iter=1, patch_size=1, mask_ratio=0.2):

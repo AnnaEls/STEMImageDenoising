@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tifffile
 import torch
+import os
 
 def z_score_normalize(img):
     """

@@ -18,9 +18,7 @@ def train_model(model, input, path, learning_rate=1e-3,  num_iter=1, patch_size=
   loss_history = []
 
   os.makedirs(path, exist_ok=True)
-
-  num_iter = 100
-  
+ 
   for it in range(num_iter):
      masked_input, mask = random_patch_mask(input, patch_size=patch_size, mask_ratio=mask_ratio)
      output = model(masked_input)

@@ -25,7 +25,7 @@ def train_model(model, input, path, learning_rate=1e-3,  num_iter=1, patch_size=
      masked_input, mask = random_patch_mask(input, patch_size=patch_size, mask_ratio=mask_ratio)
      output = model(masked_input)
 
-     loss = F.mse_loss(output * (1 - mask), noisy_image_tensor * (1-mask))
+     loss = F.mse_loss(output * (1 - mask), input * (1-mask))
      loss_history.append(loss.item())
 
      optimizer.zero_grad()

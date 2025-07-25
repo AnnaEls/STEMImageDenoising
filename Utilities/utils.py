@@ -86,6 +86,6 @@ def calculate_metrics(path, path_to_clean_image, show_graphs=False):
     max_ssim = np.max(ssims)
     best_psnr_iteration = iterations[np.argmax(psnrs)]
     best_ssim_iteration = iterations[np.argmax(ssims)]
-    np.save(os.path.join(path, 'Gaussian_0__psnrs.npy'), psnrs)
-    np.save(os.path.join(path, 'Gaussian_0_2_ssims.npy'), ssims)
+    np.save(os.path.join(path, 'psnrs.npy'), psnrs)
+    np.save(os.path.join(path, 'ssims.npy'), ssims)
     return max_psnr, max_ssim, best_psnr_iteration, best_ssim_iteration

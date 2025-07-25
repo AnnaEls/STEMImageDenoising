@@ -31,7 +31,7 @@ def train_model(model, input, path, learning_rate=1e-3,  num_iter=1, patch_size=
      loss.backward()
      optimizer.step()
 
-     save_model(it, loss, model, optimizer, path, input, show_image)
+     save_model(it, loss, model, optimizer, path, input, show_image) 
     
 
   np.save(path+'loss_history.npy', np.array(loss_history))

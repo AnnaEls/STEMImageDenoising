@@ -59,7 +59,8 @@ def calculate_metrics(path, path_to_clean_image, show_graphs=False):
         denoised_image = np.array(tifffile.imread(os.path.join(path, image_file)))
         current_psnr = psnr_metric(clean_image, denoised_image)
         current_ssim = ssim_metric(clean_image, denoised_image)
-        psnrs.append(current_psnr)ssims.append(current_ssim)
+        psnrs.append(current_psnr)
+        ssims.append(current_ssim)
         iterations.append(iteration)
     if show_graphs:
         sorted_indices = np.argsort(iterations)

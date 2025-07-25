@@ -4,6 +4,8 @@ import tifffile
 import torch
 import os
 import cv2
+from skimage.metrics import peak_signal_noise_ratio as psnr_metric
+from skimage.metrics import structural_similarity as ssim_metric
 
 def z_score_normalize(img):
     """
@@ -45,3 +47,44 @@ def save_model(it, loss, model, optimizer, path, noisy_image_tensor, show_image 
                plt.imshow(denoised_image.squeeze().detach().cpu().numpy(), cmap='gray'); plt.axis('off'); plt.tight_layout();
                plt.show()
      model.train()
+
+def calculate_metrics(path, path_to_clean_image, show_graphs=False):
+    clean_image = np.array(tifffile.imread(path_to_clean_image))
+    psnrs = []
+    ssims = []
+    iterations = []
+    image_files = sorted([f for f in os.listdir(path) if f.endswith('.tif') and f[:-4].isdigit()])
+    for image_file in image_files:
+        iteration = int(image_file[:-4])
+        denoised_image = np.array(tifffile.imread(os.path.join(path, image_file)))
+        current_psnr = psnr_metric(clean_image, denoised_image)
+        current_ssim = ssim_metric(clean_image, denoised_image)
+        psnrs.append(current_psnr)ssims.append(current_ssim)
+        iterations.append(iteration)
+    if show_graphs:
+        sorted_indices = np.argsort(iterations)
+        iterations = np.array(iterations)[sorted_indices]
+        psnrs = np.array(psnrs)[sorted_indices]
+        ssims = np.array(ssims)[sorted_indices]
+        plt.figure(figsize=(12, 5))
+        plt.subplot(1, 2, 1)
+        plt.plot(iterations, psnrs)
+        plt.xlabel('Iterations')
+        plt.ylabel('PSNR')
+        plt.title('PSNR vs. Iterations')
+        plt.grid(True)
+        plt.subplot(1, 2, 2)
+        plt.plot(iterations, ssims)
+        plt.xlabel('Iterations')
+        plt.ylabel('SSIM')
+        plt.title('SSIM vs. Iterations')
+        plt.tight_layout()
+        plt.grid(True)
+        plt.show()
+    max_psnr = np.max(psnrs)
+    max_ssim = np.max(ssims)
+    best_psnr_iteration = iterations[np.argmax(psnrs)]
+    best_ssim_iteration = iterations[np.argmax(ssims)]
+    np.save(os.path.join(path, 'Gaussian_0__psnrs.npy'), psnrs)
+    np.save(os.path.join(path, 'Gaussian_0_2_ssims.npy'), ssims)
+    return max_psnr, max_ssim, best_psnr_iteration, best_ssim_iteration

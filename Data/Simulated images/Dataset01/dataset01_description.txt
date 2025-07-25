@@ -1,1 +1,0 @@
-128x128 pixels simulated image of periodic gaussians with defects and adatoms, jitter and Gaussian noise added

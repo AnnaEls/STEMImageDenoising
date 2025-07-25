@@ -89,4 +89,15 @@ def calculate_metrics(path, path_to_clean_image, show_graphs=False):
     best_ssim_iteration = iterations[np.argmax(ssims)]
     np.save(os.path.join(path, 'psnrs.npy'), psnrs)
     np.save(os.path.join(path, 'ssims.npy'), ssims)
+    
+    best_psnr_model_file = f"model_step_{best_psnr_iteration+1:04d}.pt"
+    best_ssim_model_file = f"model_step_{best_ssim_iteration+1:04d}.pt"
+    model_files = [f for f in os.listdir(path) if f.endswith('.pt')]
+    for model_file in model_files:
+        if model_file != best_psnr_model_file and model_file != best_ssim_model_file:
+           try:
+              os.remove(os.path.join(path, model_file))
+              print(f"Deleted: {model_file}")
+           except OSError as e:
+              print(f"Error deleting {model_file}: {e}")
     return max_psnr, max_ssim, best_psnr_iteration, best_ssim_iteration

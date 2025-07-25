@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from STEMImageDenoising.Training.mask import random_patch_mask
 from STEMImageDenoising.Utilities.utils import save_model
+import numpy as np
 
 def train_model(model, input, path, learning_rate=1e-3,  num_iter=1, patch_size=1, mask_ratio=0.2):
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

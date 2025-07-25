@@ -31,7 +31,7 @@ def convert(image):
   return image
 
 def save_model(it, loss, model, optimizer, path, noisy_image_tensor, show_image = True, model_eval = True):
-  print(f"epoch {it + 1}, loss={loss.item():.6f}")
+  
   torch.save({'step': it,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
@@ -44,6 +44,7 @@ def save_model(it, loss, model, optimizer, path, noisy_image_tensor, show_image 
             denoised_image = model(noisy_image_tensor)
             tifffile.imwrite(f'{path}/{it+1:04d}.tif', convert(denoised_image.squeeze().detach().cpu().numpy()), imagej=True)
             if show_image:
+               print(f"epoch {it + 1}, loss={loss.item():.6f}")
                plt.imshow(denoised_image.squeeze().detach().cpu().numpy(), cmap='gray'); plt.axis('off'); plt.tight_layout();
                plt.show()
      model.train()

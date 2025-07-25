@@ -97,7 +97,6 @@ def calculate_metrics(path, path_to_clean_image, show_graphs=False):
         if model_file != best_psnr_model_file and model_file != best_ssim_model_file:
            try:
               os.remove(os.path.join(path, model_file))
-              print(f"Deleted: {model_file}")
            except OSError as e:
               print(f"Error deleting {model_file}: {e}")
     return max_psnr, max_ssim, best_psnr_iteration, best_ssim_iteration

@@ -81,7 +81,7 @@ class AFNOTransformerBlock(nn.Module):
         B, C, H, W = x.shape
 
         # Apply AFNO
-        x = x + self.afno(x) #applies AFNO to the input, and adds “remixed” output back to the original input
+        x = self.afno(x) 
 
         # MLP
         x_ = self.mlp(x.view(B, H * W, C))

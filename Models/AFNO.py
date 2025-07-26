@@ -4,20 +4,20 @@ import torch.nn.functional as F
 
 class AFNOTransformerModel(nn.Module):
     def __init__(self, in_channels=1, embed_dim=32, depth=3, mlp_ratio=4, hidden_dim_afno=64):
-       """
-       #in_channels -  number of input channels
-       #embed_dim -  dimension of the patch embedding/feature extraction
-       #depth - number of AFNO transformer blocks stacked in the model
-       #mlp_ratio - multiplier for the hidden dimension in the MLP layers inside each transformer block
-       #hidden_dim_afno - number of hidden features in block
-       """
-    super().__init__()
-    self.patch_embed = PatchEmbed(in_channels, embed_dim) #Patch embedding
-    self.blocks = nn.ModuleList([
-        AFNOTransformerBlock(embed_dim, mlp_ratio, hidden_dim_afno) #AFNO transformer blocks
-        for _ in range(depth)
-      ])
-    self.reconstruction_head = nn.Conv2d(embed_dim, 1, kernel_size=1) #Image reconstruction
+      """
+      in_channels -  number of input channels
+      embed_dim -  dimension of the patch embedding/feature extraction
+      depth - number of AFNO transformer blocks stacked in the model
+      mlp_ratio - multiplier for the hidden dimension in the MLP layers inside each transformer block
+      hidden_dim_afno - number of hidden features in block
+      """
+        super().__init__()
+        self.patch_embed = PatchEmbed(in_channels, embed_dim) #Patch embedding
+        self.blocks = nn.ModuleList([
+            AFNOTransformerBlock(embed_dim, mlp_ratio, hidden_dim_afno) #AFNO transformer blocks
+            for _ in range(depth)
+         ])
+        self.reconstruction_head = nn.Conv2d(embed_dim, 1, kernel_size=1) #Image reconstruction
 
     def forward(self, x):
         x = self.patch_embed(x) #Patch embedding

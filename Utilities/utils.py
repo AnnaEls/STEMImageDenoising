@@ -21,7 +21,9 @@ def z_score_normalize(img):
 
 def prepare_input(path, show_image = True):
   noisy_image = np.array(tifffile.imread(path))
-  noisy_image_tensor = torch.from_numpy(z_score_normalize(noisy_image)).unsqueeze(0).unsqueeze(0).float()
+  #noisy_image_tensor = torch.from_numpy(z_score_normalize(noisy_image)).unsqueeze(0).unsqueeze(0).float()
+  noisy_image_tensor = torch.from_numpy(noisy_image.astype(np.float32)).unsqueeze(0).unsqueeze(0)
+  noisy_image_tensor = z_score_normalize(noisy_image_tensor)
   if show_image:
      plt.imshow(noisy_image_tensor[0,0], cmap='gray'); plt.axis('off'); plt.tight_layout(); plt.show();
   return noisy_image_tensor

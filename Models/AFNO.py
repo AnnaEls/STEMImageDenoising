@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class AFNOBlock(nn.Module):
-    def __init__(self, dim, hidden_dim):
+    def __init__(self, dim, hidden_dim=64):
         super(AFNOBlock, self).__init__()
         self.fc1 = nn.Linear(2, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, 2)
@@ -64,7 +64,7 @@ class AFNOTransformerBlock(nn.Module):
 
 # --- Patch Embedding ---
 class PatchEmbed(nn.Module):
-    def __init__(self, in_channels, embed_dim):
+    def __init__(self, in_channels=1, embed_dim=32):
         super().__init__()
         self.proj = nn.Conv2d(in_channels, embed_dim, kernel_size=3, padding=1)
 
@@ -73,7 +73,7 @@ class PatchEmbed(nn.Module):
 
 # --- Full Model ---
 class AFNOTransformerModel(nn.Module):
-    def __init__(self, in_channels=1, embed_dim=32, depth=2, mlp_ratio=6, hidden_dim_afno=64):
+    def __init__(self, in_channels=1, embed_dim=32, depth=3, mlp_ratio=6, hidden_dim_afno=64):
         super().__init__()
         self.patch_embed = PatchEmbed(in_channels, embed_dim)
         self.blocks = nn.ModuleList([

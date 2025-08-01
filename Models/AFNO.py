@@ -44,7 +44,7 @@ class MLP(nn.Module):
         return x
 
 class AFNOTransformerBlock(nn.Module):
-    def __init__(self, dim, mlp_ratio, hidden_dim_afno, norm=False, skip_one=False, skip_two=False):
+    def __init__(self, dim, mlp_ratio, hidden_dim_afno, norm, skip_one, skip_two):
         super().__init__()
         self.afno = AFNOBlock(dim, hidden_dim=hidden_dim_afno)
         self.mlp = MLP(dim, int(dim * mlp_ratio))
@@ -88,11 +88,11 @@ class PatchEmbed(nn.Module):
 
 # --- Full Model ---
 class AFNOTransformerModel(nn.Module):
-    def __init__(self, in_channels=1, embed_dim=32, depth=3, mlp_ratio=6, hidden_dim_afno=64):
+    def __init__(self, in_channels=1, embed_dim=32, depth=3, mlp_ratio=6, hidden_dim_afno=64,norm=False, skip_one=False, skip_two=False):
         super().__init__()
         self.patch_embed = PatchEmbed(in_channels, embed_dim)
         self.blocks = nn.ModuleList([
-            AFNOTransformerBlock(embed_dim, mlp_ratio, hidden_dim_afno)
+            AFNOTransformerBlock(embed_dim, mlp_ratio, hidden_dim_afno, norm, skip_one, skip_two)
             for _ in range(depth)
         ])
         self.reconstruction_head = nn.Conv2d(embed_dim, 1, kernel_size=1)

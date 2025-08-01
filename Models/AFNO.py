@@ -51,23 +51,26 @@ class AFNOTransformerBlock(nn.Module):
         # Normalization layers
         self.norm1 = nn.LayerNorm(dim)  # before AFNO
         self.norm2 = nn.LayerNorm(dim)  # before MLP
+        self.norm = norm
+        self.skip_one = skip_one
+        self.skip_two =skip_two
 
     def forward(self, x):
         B, C, H, W = x.shape
 
-        if skip_one:
+        if self.skip_one:
             skip_1 = x
-        if norm:
+        if self.norm:
             x_perm = x.permute(0, 2, 3, 1)  # [B, H, W, C] for LayerNorm
             x = self.norm1(x_perm).permute(0, 3, 1, 2)  # back to [B, C, H, W]
-        if skip_one:
+        if self.skip_one:
            x = skip_1 + self.afno(x)  # Skip around AFNO
         else:
            x = self.afno(x)
-        if norm:
+        if self.norm:
             x_perm = x.permute(0, 2, 3, 1)  # [B, H, W, C]
             x = self.norm2(x_perm)
-        if skip_two:
+        if self.skip_two:
             skip_2 = x_perm
             x = self.mlp(x.view(B, H * W, C))
             x = x.view(B, H, W, C) + skip_2

@@ -44,24 +44,39 @@ class MLP(nn.Module):
         return x
 
 class AFNOTransformerBlock(nn.Module):
-    def __init__(self, dim, mlp_ratio, hidden_dim_afno):
+    def __init__(self, dim, mlp_ratio, hidden_dim_afno, norm=False, skip_one=False, skip_two=False):
         super().__init__()
         self.afno = AFNOBlock(dim, hidden_dim=hidden_dim_afno)
         self.mlp = MLP(dim, int(dim * mlp_ratio))
+        # Normalization layers
+        self.norm1 = nn.LayerNorm(dim)  # before AFNO
+        self.norm2 = nn.LayerNorm(dim)  # before MLP
 
     def forward(self, x):
         B, C, H, W = x.shape
-        
-        # Apply AFNO
-        x = self.afno(x) 
-        
-        # MLP
-        x = x.permute(0, 2, 3, 1).contiguous()  # [B, H, W, C]   
-        x = self.mlp(x.view(B, H * W, C))
-        x = x.view(B, H, W, C).permute(0, 3, 1, 2).contiguous()
 
-        return x
-
+        if skip_one:
+            skip_1 = x
+        if norm:
+            x_perm = x.permute(0, 2, 3, 1)  # [B, H, W, C] for LayerNorm
+            x = self.norm1(x_perm).permute(0, 3, 1, 2)  # back to [B, C, H, W]
+        if skip_one:
+           x = skip_1 + self.afno(x)  # Skip around AFNO
+        else:
+           x = self.afno(x)
+        if norm:
+            x_perm = x.permute(0, 2, 3, 1)  # [B, H, W, C]
+            x = self.norm2(x_perm)
+        if skip_two:
+            skip_2 = x_perm
+            x = self.mlp(x.view(B, H * W, C))
+            x = x.view(B, H, W, C) + skip_2
+        else:
+            x = self.mlp(x.view(B, H * W, C))
+            x = x.view(B, H, W, C) 
+         x = x.permute(0, 3, 1, 2)  # [B, C, H, W] 
+        return x   
+            
 # --- Patch Embedding ---
 class PatchEmbed(nn.Module):
     def __init__(self, in_channels, embed_dim):

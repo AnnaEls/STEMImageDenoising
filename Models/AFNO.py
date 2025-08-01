@@ -67,8 +67,8 @@ class AFNOTransformerBlock(nn.Module):
            x = skip_1 + self.afno(x)  # Skip around AFNO
         else:
            x = self.afno(x)
-        if self.norm:
-            x_perm = x.permute(0, 2, 3, 1)  # [B, H, W, C]
+        x_perm = x.permute(0, 2, 3, 1)  # [B, H, W, C]
+        if self.norm:            
             x = self.norm2(x_perm)
         if self.skip_two:
             skip_2 = x_perm

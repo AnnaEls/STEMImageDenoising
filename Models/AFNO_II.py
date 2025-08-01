@@ -33,7 +33,7 @@ class AFNOBlock(nn.Module):
         x_fft = torch.fft.fft2(x, norm='ortho')  # [B, C, H, W]
 
         # 2) Group channels for efficient processing
-        x_fft = x_fft.view(B, self.num_groups, self.group_channels, H, W)
+        x_fft = x_fft.reshape(B, self.num_groups, self.group_channels, H, W)
 
         # 3) Real+Imag concat
         freq = torch.cat([x_fft.real, x_fft.imag], dim=2)  # [B, G, 2*Gc, H, W]
@@ -45,9 +45,9 @@ class AFNOBlock(nn.Module):
         freq = self.fc2(freq)
 
         # 5) Convert back to complex
-        freq = freq.permute(0, 1, 4, 2, 3)                # [B, G, 2*Gc, H, W]
+        freq = freq.permute(0, 1, 4, 2, 3).contiguous()    # [B, G, 2*Gc, H, W]
         real, imag = torch.chunk(freq, 2, dim=2)
-        x_fft_filtered = torch.complex(real, imag).view(B, C, H, W)
+        x_fft_filtered = torch.complex(real, imag).reshape(B, C, H, W)
 
         # 6) Inverse FFT to spatial domain
         x_out = torch.fft.ifft2(x_fft_filtered, norm='ortho').real
@@ -98,8 +98,9 @@ class AFNOTransformerBlock(nn.Module):
         if self.norm:
             x_perm = self.norm2(x_perm)
 
+        # Use reshape instead of view to avoid non-contiguous error
         x_perm = self.mlp(x_perm.reshape(B, H * W, C))
-        x_perm = x_perm.view(B, H, W, C)
+        x_perm = x_perm.reshape(B, H, W, C)
         if self.skip_two:
             x_perm = x_perm + skip_2
 
@@ -120,8 +121,8 @@ class PatchEmbed(nn.Module):
 # Full AFNO Transformer Model
 # -------------------------------
 class AFNOTransformerModel(nn.Module):
-    def __init__(self, in_channels=1, embed_dim=32, depth=3, mlp_ratio=6,
-                 hidden_dim_afno=64, num_groups=8, norm=True,
+    def __init__(self, in_channels=1, embed_dim=32, depth=3, mlp_ratio=4,
+                 hidden_dim_afno=64, num_groups=4, norm=True,
                  skip_one=True, skip_two=True):
         super().__init__()
         self.patch_embed = PatchEmbed(in_channels, embed_dim)

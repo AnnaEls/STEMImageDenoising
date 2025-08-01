@@ -74,7 +74,7 @@ class AFNOTransformerBlock(nn.Module):
         else:
             x = self.mlp(x.view(B, H * W, C))
             x = x.view(B, H, W, C) 
-         x = x.permute(0, 3, 1, 2)  # [B, C, H, W] 
+        x = x.permute(0, 3, 1, 2)  # [B, C, H, W] 
         return x   
             
 # --- Patch Embedding ---

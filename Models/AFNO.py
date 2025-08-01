@@ -58,27 +58,26 @@ class AFNOTransformerBlock(nn.Module):
     def forward(self, x):
         B, C, H, W = x.shape
 
-        if self.skip_one:
-            skip_1 = x
+        # --- Skip 1 around AFNO ---
+        skip_1 = x if self.skip_one else None
         if self.norm:
-            x_perm = x.permute(0, 2, 3, 1)  # [B, H, W, C] for LayerNorm
-            x = self.norm1(x_perm).permute(0, 3, 1, 2)  # back to [B, C, H, W]
+            x = self.norm1(x.permute(0, 2, 3, 1)).permute(0, 3, 1, 2)
+        x = self.afno(x)
         if self.skip_one:
-           x = skip_1 + self.afno(x)  # Skip around AFNO
-        else:
-           x = self.afno(x)
-        x_perm = x.permute(0, 2, 3, 1)  # [B, H, W, C]
-        if self.norm:            
-            x = self.norm2(x_perm)
+            x = x + skip_1
+
+        # --- Skip 2 around MLP ---
+        x_perm = x.permute(0, 2, 3, 1)
+        skip_2 = x_perm if self.skip_two else None
+        if self.norm:
+            x_perm = self.norm2(x_perm)
+
+        x = self.mlp(x_perm.contiguous().view(B, H * W, C))
+        x = x.view(B, H, W, C)
         if self.skip_two:
-            skip_2 = x_perm
-            x = self.mlp(x.view(B, H * W, C))
-            x = x.view(B, H, W, C) + skip_2
-        else:
-            x = self.mlp(x.view(B, H * W, C))
-            x = x.view(B, H, W, C) 
-        x = x.permute(0, 3, 1, 2)  # [B, C, H, W] 
-        return x   
+            x = x + skip_2
+
+        return x.permute(0, 3, 1, 2).contiguous()
             
 # --- Patch Embedding ---
 class PatchEmbed(nn.Module):
